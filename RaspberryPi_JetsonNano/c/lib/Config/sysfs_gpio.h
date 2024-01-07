@@ -48,7 +48,7 @@
 #else
 	#define SYSFS_GPIO_Debug(__info,...)  
 #endif 
-
+/*
 // BCM GPIO for Jetson nano
 #define GPIO4 216 // 7, 4
 #define GPIO17 50 // 11, 17
@@ -74,6 +74,20 @@
 #define GPIO21 78 // 40, 21
 // 22PIN + 2PIN UART0 + 2PIN I2C0 + 2PIN I2C
 // + 2PIN 3V3 + 2PIN 5V + 8PIN GND  = 40PIN
+*/
+
+#define GPIO02 5;
+#define GPIO04 4;
+#define GPIO05 3;  // nonexisting on NanoPi Duo2
+#define GPIO11 203;
+#define GPIO22 198;
+
+#define SPI0_MOSI 15 // 19, 10
+#define SPI0_MISO 16 // 21, 9
+#define SPI0_SCK 14 // 23, 11
+#define SPI0_CS0 13 // 24, 8
+//#define SPI0_CS1 20 // 26, 7
+
 
 int SYSFS_GPIO_Export(int Pin);
 int SYSFS_GPIO_Unexport(int Pin);

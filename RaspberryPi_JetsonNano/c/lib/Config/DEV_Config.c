@@ -28,7 +28,6 @@
 #
 ******************************************************************************/
 #include "DEV_Config.h"
-#include "RPI_gpiod.h"
 
 #if USE_LGPIO_LIB
 int GPIO_Handle;
@@ -261,7 +260,8 @@ static int DEV_Equipment_Testing(void)
 	}
 #endif
 #ifdef JETSON
-	char system[] = {"Ubuntu"};
+//	char system[] = {"Ubuntu"};
+	char system[] = {"Armbian"};
 	if (strstr(issue_str, system) != NULL) {
 		printf("%s\n", system);
 	} else {
@@ -285,11 +285,16 @@ void DEV_GPIO_Init(void)
     EPD_PWR_PIN     = 18;
 	EPD_BUSY_PIN    = 24;
 #elif JETSON
-	EPD_RST_PIN     = GPIO17;
-	EPD_DC_PIN      = GPIO25;
-	EPD_CS_PIN      = SPI0_CS0;
-    EPD_PWR_PIN     = GPIO18;
-	EPD_BUSY_PIN    = GPIO24;
+	// EPD_RST_PIN     = GPIO17;
+	// EPD_DC_PIN      = GPIO25;
+	// EPD_CS_PIN      = SPI0_CS0;
+    // EPD_PWR_PIN     = GPIO18;
+	// EPD_BUSY_PIN    = GPIO24;
+	EPD_RST_PIN     = GPIO11;
+	EPD_DC_PIN      = GPIO22;
+	EPD_CS_PIN      = GPIO04;
+    EPD_PWR_PIN     = GPIO05;
+	EPD_BUSY_PIN    = GPIO02;
 #endif
 
     DEV_GPIO_Mode(EPD_BUSY_PIN, 0);
@@ -446,7 +451,7 @@ void DEV_Module_Exit(void)
 #elif JETSON
 #ifdef USE_DEV_LIB
 	SYSFS_GPIO_Unexport(EPD_CS_PIN);
-    SYSFS_GPIO_Unexport(EPD_PWR_PIN;
+    SYSFS_GPIO_Unexport(EPD_PWR_PIN);
 	SYSFS_GPIO_Unexport(EPD_DC_PIN);
 	SYSFS_GPIO_Unexport(EPD_RST_PIN);
 	SYSFS_GPIO_Unexport(EPD_BUSY_PIN);
