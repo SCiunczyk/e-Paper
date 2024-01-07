@@ -60,7 +60,7 @@ void DEV_Digital_Write(UWORD Pin, UBYTE Value)
 #endif
 #endif
 
-#ifdef JETSON
+#if defined JETSON || defined NPID2
 #ifdef USE_DEV_LIB
 	SYSFS_GPIO_Write(Pin, Value);
 #elif USE_HARDWARE_LIB
@@ -84,7 +84,7 @@ UBYTE DEV_Digital_Read(UWORD Pin)
 #endif
 #endif
 
-#ifdef JETSON
+#if defined JETSON || defined NPID2
 #ifdef USE_DEV_LIB
 	Read_value = SYSFS_GPIO_Read(Pin);
 #elif USE_HARDWARE_LIB
@@ -111,7 +111,7 @@ void DEV_SPI_WriteByte(uint8_t Value)
 #endif
 #endif
 
-#ifdef JETSON
+#if defined JETSON || defined NPID2
 #ifdef USE_DEV_LIB
 	SYSFS_software_spi_transfer(Value);
 #elif USE_HARDWARE_LIB
@@ -135,7 +135,7 @@ void DEV_SPI_Write_nByte(uint8_t *pData, uint32_t Len)
 #endif
 #endif
 
-#ifdef JETSON
+#if defined JETSON || defined NPID2
 #ifdef USE_DEV_LIB
 	//JETSON nano waits for hardware SPI
 	// Debug("not support");
@@ -187,7 +187,7 @@ void DEV_GPIO_Mode(UWORD Pin, UWORD Mode)
 #endif
 #endif
 
-#ifdef JETSON
+#if defined JETSON || defined NPID2
 #ifdef USE_DEV_LIB
 	SYSFS_GPIO_Export(Pin);
 	SYSFS_GPIO_Direction(Pin, Mode);
@@ -217,7 +217,7 @@ void DEV_Delay_ms(UDOUBLE xms)
 #endif
 #endif
 
-#ifdef JETSON
+#if defined JETSON || defined NPID2
 	UDOUBLE i;
 	for(i=0; i < xms; i++) {
 		usleep(1000);
@@ -260,13 +260,23 @@ static int DEV_Equipment_Testing(void)
 	}
 #endif
 #ifdef JETSON
-//	char system[] = {"Ubuntu"};
-	char system[] = {"Armbian"};
+	char system[] = {"Ubuntu"};
 	if (strstr(issue_str, system) != NULL) {
 		printf("%s\n", system);
 	} else {
 		printf("not recognized\n");
 		printf("Built for Jetson, but unable to detect environment.\n");
+		printf("Perhaps you meant to 'make RPI' instead?\n");
+		return -1;
+	}
+#endif
+#ifdef NPID2
+	char system[] = {"Armbian"};
+	if (strstr(issue_str, system) != NULL) {
+		printf("%s\n", system);
+	} else {
+		printf("not recognized\n");
+		printf("Built for NanoPi Duo2 / Armbian, but unable to detect environment.\n");
 		printf("Perhaps you meant to 'make RPI' instead?\n");
 		return -1;
 	}
@@ -285,11 +295,12 @@ void DEV_GPIO_Init(void)
     EPD_PWR_PIN     = 18;
 	EPD_BUSY_PIN    = 24;
 #elif JETSON
-	// EPD_RST_PIN     = GPIO17;
-	// EPD_DC_PIN      = GPIO25;
-	// EPD_CS_PIN      = SPI0_CS0;
-    // EPD_PWR_PIN     = GPIO18;
-	// EPD_BUSY_PIN    = GPIO24;
+	EPD_RST_PIN     = GPIO17;
+	EPD_DC_PIN      = GPIO25;
+	EPD_CS_PIN      = SPI0_CS0;
+    EPD_PWR_PIN     = GPIO18;
+	EPD_BUSY_PIN    = GPIO24;
+#elif NPID2
 	EPD_RST_PIN     = GPIO11;
 	EPD_DC_PIN      = GPIO22;
 	EPD_CS_PIN      = GPIO04;
@@ -387,8 +398,9 @@ UBYTE DEV_Module_Init(void)
 	DEV_HARDWARE_SPI_begin("/dev/spidev0.0");
     DEV_HARDWARE_SPI_setSpeed(10000000);
 #endif
+#endif
 
-#elif JETSON
+#if defined JETSON || defined NPID2
 #ifdef USE_DEV_LIB
 	DEV_GPIO_Init();
 	printf("Software spi\r\n");
@@ -447,8 +459,9 @@ void DEV_Module_Exit(void)
     GPIOD_Unexport(EPD_BUSY_PIN);
     GPIOD_Unexport_GPIO();
 #endif
+#endif
 
-#elif JETSON
+#if defined JETSON || defined NPID2
 #ifdef USE_DEV_LIB
 	SYSFS_GPIO_Unexport(EPD_CS_PIN);
     SYSFS_GPIO_Unexport(EPD_PWR_PIN);

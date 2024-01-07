@@ -47,46 +47,48 @@
 	#define SYSFS_GPIO_Debug(__info,...) printf("Debug: " __info,##__VA_ARGS__)
 #else
 	#define SYSFS_GPIO_Debug(__info,...)  
-#endif 
-/*
+#endif
+
+#ifdef JETSON
 // BCM GPIO for Jetson nano
-#define GPIO4 216 // 7, 4
-#define GPIO17 50 // 11, 17
-#define GPIO18 79 // 12, 18
-#define GPIO27 14 // 13, 27
-#define GPIO22 194 // 15, 22
-#define GPIO23 232 // 16, 23
-#define GPIO24 15 // 18, 24
-#define SPI0_MOSI 16 // 19, 10
-#define SPI0_MISO 17 // 21, 9
-#define GPIO25 13 // 22, 25
-#define SPI0_SCK 18 // 23, 11
-#define SPI0_CS0 19 // 24, 8
-#define SPI0_CS1 20 // 26, 7
-#define GPIO5 149 // 29, 5
-#define GPIO6 200 // 31, 6
-#define GPIO12 168 // 32, 12
-#define GPIO13 38 // 33, 13
-#define GPIO19 76 // 35, 19
-#define GPIO16 51 // 36, 16
-#define GPIO26 12 // 37, 26
-#define GPIO20 77 // 38, 20
-#define GPIO21 78 // 40, 21
-// 22PIN + 2PIN UART0 + 2PIN I2C0 + 2PIN I2C
-// + 2PIN 3V3 + 2PIN 5V + 8PIN GND  = 40PIN
-*/
+	#define GPIO4 216 // 7, 4
+	#define GPIO17 50 // 11, 17
+	#define GPIO18 79 // 12, 18
+	#define GPIO27 14 // 13, 27
+	#define GPIO22 194 // 15, 22
+	#define GPIO23 232 // 16, 23
+	#define GPIO24 15 // 18, 24
+	#define SPI0_MOSI 16 // 19, 10
+	#define SPI0_MISO 17 // 21, 9
+	#define GPIO25 13 // 22, 25
+	#define SPI0_SCK 18 // 23, 11
+	#define SPI0_CS0 19 // 24, 8
+	#define SPI0_CS1 20 // 26, 7
+	#define GPIO5 149 // 29, 5
+	#define GPIO6 200 // 31, 6
+	#define GPIO12 168 // 32, 12
+	#define GPIO13 38 // 33, 13
+	#define GPIO19 76 // 35, 19
+	#define GPIO16 51 // 36, 16
+	#define GPIO26 12 // 37, 26
+	#define GPIO20 77 // 38, 20
+	#define GPIO21 78 // 40, 21
+	// 22PIN + 2PIN UART0 + 2PIN I2C0 + 2PIN I2C
+	// + 2PIN 3V3 + 2PIN 5V + 8PIN GND  = 40PIN
+#endif
 
-#define GPIO02 5;
-#define GPIO04 4;
-#define GPIO05 3;  // nonexisting on NanoPi Duo2
-#define GPIO11 203;
-#define GPIO22 198;
+#ifdef NPID2
+	#define GPIO02 5;
+	#define GPIO04 4;
+	#define GPIO05 3;  // nonexisting on NanoPi Duo2 - but used here to "fool the code"
+	#define GPIO11 203;
+	#define GPIO22 198;
 
-#define SPI0_MOSI 15 // 19, 10
-#define SPI0_MISO 16 // 21, 9
-#define SPI0_SCK 14 // 23, 11
-#define SPI0_CS0 13 // 24, 8
-//#define SPI0_CS1 20 // 26, 7
+	#define SPI0_MOSI 15 // 19, 10
+	#define SPI0_MISO 16 // 21, 9
+	#define SPI0_SCK 14 // 23, 11
+	#define SPI0_CS0 13 // 24, 8
+#endif
 
 
 int SYSFS_GPIO_Export(int Pin);

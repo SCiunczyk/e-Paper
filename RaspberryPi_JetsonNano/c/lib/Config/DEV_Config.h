@@ -72,7 +72,7 @@
     #endif
 #endif
 
-#ifdef JETSON
+#if defined JETSON || defined NPID2
     #ifdef USE_DEV_LIB
         #include "sysfs_gpio.h"    
         #include "sysfs_software_spi.h"

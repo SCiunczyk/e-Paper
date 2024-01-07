@@ -19,7 +19,7 @@ of the project.
 
 2. Pin connection:
 Pin connection You can view it in DEV_Config.h in the \lib\Config\ directory, and repeat it here:
-EPD    =>    Jetson Nano/RPI(BCM)
+EPD    =>    Jetson Nano/RPI(BCM)/NanoPi Duo2
 VCC    ->    3.3
 GND    ->    GND
 DIN    ->    10(SPI0_MOSI)
@@ -46,6 +46,12 @@ Example 3:
     If you buy a 7.5-inch e-paper (V2), you should add EPD=epd7in5V2 at compile time
         sudo make clean
         sudo make EPD=epd7in5V2
+Remark:
+    Default SBC platform is Raspberry Pi. If you want to build for specific platform add platform code do make commmand
+        sudo make clean
+        sudo make RPI EPD=epd7in5V2     (Raspberry Pi)
+        sudo make JETSON EPD=epd7in5V2  (Jetson Nano)
+        sudo make NPID2 EPD=epd7in5V2   (NanoPi Duo2)
 
 An executable file is then generated: epd
 Run: sudo ./epd

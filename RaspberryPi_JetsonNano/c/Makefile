@@ -198,6 +198,7 @@ OBJ_C = $(wildcard ${OBJ_C_EPD} ${DIR_GUI}/*.c ${OBJ_C_Examples} ${DIR_Examples}
 OBJ_O = $(patsubst %.c,${DIR_BIN}/%.o,$(notdir ${OBJ_C}))
 RPI_DEV_C = $(wildcard $(DIR_BIN)/dev_hardware_SPI.o $(DIR_BIN)/RPI_gpiod.o $(DIR_BIN)/DEV_Config.o )
 JETSON_DEV_C = $(wildcard $(DIR_BIN)/sysfs_software_spi.o $(DIR_BIN)/sysfs_gpio.o $(DIR_BIN)/DEV_Config.o )
+NPID2_DEV_C = $(wildcard $(DIR_BIN)/sysfs_software_spi.o $(DIR_BIN)/sysfs_gpio.o $(DIR_BIN)/DEV_Config.o )
 
 
 DEBUG = -D DEBUG
@@ -228,10 +229,20 @@ else ifeq ($(USELIB_JETSONI), USE_HARDWARE_LIB)
 endif
 DEBUG_JETSONI = -D $(USELIB_JETSONI) -D JETSON
 
-.PHONY : RPI JETSON clean
+USELIB_NPID2I = USE_DEV_LIB
+# USELIB_NPID2I = USE_HARDWARE_LIB
+ifeq ($(USELIB_NPID2I), USE_DEV_LIB)
+	LIB_NPID2I = -lm 
+else ifeq ($(USELIB_NPID2I), USE_HARDWARE_LIB)
+	LIB_NPID2I = -lm 
+endif
+DEBUG_NPID2I = -D $(USELIB_NPID2I) -D NPID2
+
+.PHONY : RPI JETSON NPID2 clean
 
 RPI:RPI_DEV RPI_epd 
 JETSON: JETSON_DEV JETSON_epd
+NPID2: NPID2_DEV NPID2_epd
 
 TARGET = epd
 CC = gcc
@@ -245,6 +256,10 @@ RPI_epd:${OBJ_O}
 JETSON_epd:${OBJ_O}
 	echo $(@)
 	$(CC) $(CFLAGS) $(OBJ_O) $(JETSON_DEV_C) -o $(TARGET) $(LIB_JETSONI) $(DEBUG)
+
+NPID2_epd:${OBJ_O}
+	echo $(@)
+	$(CC) $(CFLAGS) $(OBJ_O) $(NPID2_DEV_C) -o $(TARGET) $(LIB_NPID2I) $(DEBUG)
 
 $(shell mkdir -p $(DIR_BIN))
 
@@ -269,6 +284,11 @@ JETSON_DEV:
 	$(CC) $(CFLAGS) $(DEBUG_JETSONI) -c	 $(DIR_Config)/sysfs_software_spi.c -o $(DIR_BIN)/sysfs_software_spi.o $(LIB_JETSONI) $(DEBUG)
 	$(CC) $(CFLAGS) $(DEBUG_JETSONI) -c	 $(DIR_Config)/sysfs_gpio.c -o $(DIR_BIN)/sysfs_gpio.o $(LIB_JETSONI) $(DEBUG)
 	$(CC) $(CFLAGS) $(DEBUG_JETSONI) -c	 $(DIR_Config)/DEV_Config.c -o $(DIR_BIN)/DEV_Config.o $(LIB_JETSONI)  $(DEBUG)
+
+NPID2_DEV:
+	$(CC) $(CFLAGS) $(DEBUG_NPID2I) -c	 $(DIR_Config)/sysfs_software_spi.c -o $(DIR_BIN)/sysfs_software_spi.o $(LIB_NPID2I) $(DEBUG)
+	$(CC) $(CFLAGS) $(DEBUG_NPID2I) -c	 $(DIR_Config)/sysfs_gpio.c -o $(DIR_BIN)/sysfs_gpio.o $(LIB_NPID2I) $(DEBUG)
+	$(CC) $(CFLAGS) $(DEBUG_NPID2I) -c	 $(DIR_Config)/DEV_Config.c -o $(DIR_BIN)/DEV_Config.o $(LIB_NPID2I)  $(DEBUG)
 
 clean :
 	rm $(DIR_BIN)/*.* 
