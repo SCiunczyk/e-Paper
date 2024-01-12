@@ -264,20 +264,99 @@ class SunriseX3:
         self.GPIO.cleanup([self.RST_PIN, self.DC_PIN, self.CS_PIN, self.BUSY_PIN], self.PWR_PIN)
 
 
-if sys.version_info[0] == 2:
-    process = subprocess.Popen("cat /proc/cpuinfo | grep Raspberry", shell=True, stdout=subprocess.PIPE)
-else:
-    process = subprocess.Popen("cat /proc/cpuinfo | grep Raspberry", shell=True, stdout=subprocess.PIPE, text=True)
-output, _ = process.communicate()
-if sys.version_info[0] == 2:
-    output = output.decode(sys.stdout.encoding)
+class NanoPiDuo2:
+    # Pin definition
+    RST_PIN  = 203      # 11
+    DC_PIN   = 198      # 22
+    CS_PIN   = 4        #  4
+    BUSY_PIN = 5        #  2
+    # PWR_PIN  = 18
 
-if "Raspberry" in output:
-    implementation = RaspberryPi()
-elif os.path.exists('/sys/bus/platform/drivers/gpio-x3'):
-    implementation = SunriseX3()
+    def __init__(self):
+        import spidev
+        import gpiod
+
+        # SPI device, bus = 0, device = 0
+        self.SPI = spidev.SpiDev(1, 0)      # << bus 1 on NanoPi DUO 2
+        
+        self.chip = gpiod.Chip('gpiochip0')
+        self.pin_line      = self.chip.get_line(self.RST_PIN)
+        self.rst_pin_line  = self.chip.get_line(self.RST_PIN)
+        self.dc_pin_line   = self.chip.get_line(self.DC_PIN)
+        self.cs_pin_line   = self.chip.get_line(self.CS_PIN)
+        self.busy_pin_line = self.chip.get_line(self.BUSY_PIN)
+
+    def digital_write(self, pin, value):
+        self.pin_line = self.chip.get_line(pin)
+        self.pin_line.set_value(value)
+
+    def digital_read(self, pin):
+        # self.pin_line = self.chip.get_line(pin)
+        # return self.pin_line.get_value()
+        return self.busy_pin_line.get_value()
+
+    def delay_ms(self, delaytime):
+        time.sleep(delaytime / 1000.0)
+
+    def spi_writebyte(self, data):
+        self.SPI.writebytes(data)
+
+    def spi_writebyte2(self, data):
+        self.SPI.writebytes2(data)
+
+    def module_init(self):
+        import gpiod
+
+        self.rst_pin_line.request(consumer="waveshare", type=gpiod.LINE_REQ_DIR_OUT)
+        self.dc_pin_line.request(consumer="waveshare", type=gpiod.LINE_REQ_DIR_OUT)
+        self.cs_pin_line.request(consumer="waveshare", type=gpiod.LINE_REQ_DIR_OUT)
+        self.busy_pin_line.request(consumer="waveshare", type=gpiod.LINE_REQ_DIR_IN)
+
+        # SPI device, bus = 1, device = 0
+        self.SPI.open(1, 0)
+        self.SPI.max_speed_hz = 4000000
+        self.SPI.mode = 0b00
+        return 0
+
+    def module_exit(self, cleanup=False):
+        logger.debug("spi end")
+        self.SPI.close()
+
+        logger.debug("close 5V, Module enters 0 power consumption ...")
+        digital_write(self.RST_PIN, 0)
+        digital_write(self.DC_PIN, 0)
+        digital_write(self.CS_PIN, 0)
+
+        if cleanup:
+            self.pin_line.release()
+            self.rst_pin_line.release()
+            self.dc_pin_line.release()
+            self.cs_pin_line.release()
+            self.busy_pin_line.release()
+
+if os.path.exists('/etc/issue'):
+    f = open("/etc/issue", "r");
+    output = f.read()
+    f.close()
+
+if "Armbian" in output:
+    implementation = NanoPiDuo2()
 else:
-    implementation = JetsonNano()
+    if sys.version_info[0] == 2:
+        process = subprocess.Popen("cat /proc/cpuinfo | grep Raspberry", shell=True, stdout=subprocess.PIPE)
+    else:
+        process = subprocess.Popen("cat /proc/cpuinfo | grep Raspberry", shell=True, stdout=subprocess.PIPE, text=True)
+    output, _ = process.communicate()
+    if sys.version_info[0] == 2:
+        output = output.decode(sys.stdout.encoding)
+
+
+    if "Raspberry" in output:
+        implementation = RaspberryPi()
+    elif os.path.exists('/sys/bus/platform/drivers/gpio-x3'):
+        implementation = SunriseX3()
+    else:
+        implementation = JetsonNano()
 
 for func in [x for x in dir(implementation) if not x.startswith('_')]:
     setattr(sys.modules[__name__], func, getattr(implementation, func))
