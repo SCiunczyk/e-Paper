@@ -291,9 +291,8 @@ class NanoPiDuo2:
         self.pin_line.set_value(value)
 
     def digital_read(self, pin):
-        # self.pin_line = self.chip.get_line(pin)
-        # return self.pin_line.get_value()
-        return self.busy_pin_line.get_value()
+        self.pin_line = self.chip.get_line(pin)
+        return self.pin_line.get_value()
 
     def delay_ms(self, delaytime):
         time.sleep(delaytime / 1000.0)
